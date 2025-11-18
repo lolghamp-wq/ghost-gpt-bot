@@ -1,0 +1,15 @@
+{
+  "name": "ghost-gpt",
+  "version": "1.0.0",
+  "description": "Bot GHOST GPT para Discord",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.12.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
