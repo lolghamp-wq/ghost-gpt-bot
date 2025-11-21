@@ -16,8 +16,10 @@ const client = new Client({
     ]
 });
 
+// Nome do canal onde o bot deve responder
 const CHANNEL_NAME = '👾・ghost-gpt';
 
+// Groq (API grátis)
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY,
 });
@@ -32,17 +34,20 @@ client.on('messageCreate', async message => {
 
     try {
         const response = await groq.chat.completions.create({
-            model: "llama-3.1-70b-versatile",
-            messages: [{ role: "user", content: message.content }],
+            model: "llama3-70b-8192",
+            messages: [
+                { role: "user", content: message.content }
+            ],
         });
 
         const reply = response.choices[0].message.content;
         message.reply(reply);
 
     } catch (error) {
-        console.error("ERRO REAL:", error);
+        console.error("ERRO GROQ:", error.response?.data || error.message || error);
         message.reply("Erro ao responder (GROQ). Verifique sua chave.");
     }
 });
 
+// Login do bot do Discord
 client.login(process.env.DISCORD_TOKEN);
