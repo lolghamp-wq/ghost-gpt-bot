@@ -8,7 +8,13 @@ const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot online!'));
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
 
 const CHANNEL_NAME = '👾・ghost-gpt';
 
@@ -21,12 +27,12 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async message => {
-    if (message.channel.name !== CHANNEL_NAME) return;
     if (message.author.bot) return;
+    if (message.channel.name !== CHANNEL_NAME) return;
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4.1-mini",
             messages: [{ role: "user", content: message.content }],
         });
 
@@ -35,7 +41,7 @@ client.on('messageCreate', async message => {
 
     } catch (error) {
         console.error(error);
-        message.reply("Desculpe, ocorreu um erro ao tentar responder.");
+        message.reply("Erro ao responder. Verifique sua API KEY ou modelo.");
     }
 });
 
