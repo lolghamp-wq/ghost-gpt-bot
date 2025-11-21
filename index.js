@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
-const OpenAI = require('openai');
+const Groq = require("groq-sdk");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,8 +18,8 @@ const client = new Client({
 
 const CHANNEL_NAME = '👾・ghost-gpt';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
 });
 
 client.on('ready', () => {
@@ -31,8 +31,8 @@ client.on('messageCreate', async message => {
     if (message.channel.name !== CHANNEL_NAME) return;
 
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4.1-mini",
+        const response = await groq.chat.completions.create({
+            model: "llama-3.1-70b-versatile",
             messages: [{ role: "user", content: message.content }],
         });
 
@@ -40,8 +40,8 @@ client.on('messageCreate', async message => {
         message.reply(reply);
 
     } catch (error) {
-        console.error(error);
-        message.reply("Erro ao responder. Verifique sua API KEY ou modelo.");
+        console.error("ERRO REAL:", error);
+        message.reply("Erro ao responder (GROQ). Verifique sua chave.");
     }
 });
 
