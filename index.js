@@ -20,7 +20,7 @@ const CHANNEL_NAME = '👾・ghost-gpt';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-    model: "gemini-pro"  // <-- este funciona 100%
+    model: "gemini-1.0-flash"
 });
 
 client.on('clientReady', () => {
