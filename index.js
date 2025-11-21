@@ -18,13 +18,12 @@ const client = new Client({
 
 const CHANNEL_NAME = '👾・ghost-gpt';
 
-// Gemini config
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",  // rápido e grátis
+    model: "gemini-pro"  // <-- este funciona 100%
 });
 
-client.on('ready', () => {
+client.on('clientReady', () => {
     console.log(`${client.user.tag} está online!`);
 });
 
@@ -34,12 +33,11 @@ client.on('messageCreate', async message => {
 
     try {
         const result = await model.generateContent(message.content);
-
         const reply = result.response.text();
         message.reply(reply);
 
     } catch (error) {
-        console.error("ERRO GEMINI:", error);
+        console.error("ERRO GEMINI:", error.response?.data || error.message || error);
         message.reply("Erro ao responder (Gemini). Verifique sua API KEY.");
     }
 });
