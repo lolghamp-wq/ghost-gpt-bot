@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
-const Groq = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,8 +18,10 @@ const client = new Client({
 
 const CHANNEL_NAME = '👾・ghost-gpt';
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
+// Gemini config
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",  // rápido e grátis
 });
 
 client.on('ready', () => {
@@ -31,19 +33,14 @@ client.on('messageCreate', async message => {
     if (message.channel.name !== CHANNEL_NAME) return;
 
     try {
-        const response = await groq.chat.completions.create({
-            model: "gemma2-9b-it",
-            messages: [
-                { role: "user", content: message.content }
-            ],
-        });
+        const result = await model.generateContent(message.content);
 
-        const reply = response.choices[0].message.content;
+        const reply = result.response.text();
         message.reply(reply);
 
     } catch (error) {
-        console.error("ERRO GROQ:", error.response?.data || error.message || error);
-        message.reply("Erro ao responder (GROQ). Verifique sua chave ou modelo.");
+        console.error("ERRO GEMINI:", error);
+        message.reply("Erro ao responder (Gemini). Verifique sua API KEY.");
     }
 });
 
