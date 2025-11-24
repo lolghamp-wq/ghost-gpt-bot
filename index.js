@@ -1,45 +1,38 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const express = require('express');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import OpenAI from "openai";
+import { Client, GatewayIntentBits } from "discord.js";
+import "dotenv/config";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => res.send('Bot online!'));
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-const CHANNEL_NAME = '👾・ghost-gpt';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.0-flash"
+const bot = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
 });
 
-client.on('clientReady', () => {
-    console.log(`${client.user.tag} está online!`);
+bot.on("ready", () => {
+  console.log("BOT ONLINE!");
 });
 
-client.on('messageCreate', async message => {
-    if (message.author.bot) return;
-    if (message.channel.name !== CHANNEL_NAME) return;
+bot.on("messageCreate", async (msg) => {
+  if (msg.author.bot) return;
 
-    try {
-        const result = await model.generateContent(message.content);
-        const reply = result.response.text();
-        message.reply(reply);
+  try {
+    const response = await openai.responses.create({
+      model: "gpt-5.1",
+      input: msg.content
+    });
 
-    } catch (error) {
-        console.error("ERRO GEMINI:", error.response?.data || error.message || error);
-        message.reply("Erro ao responder (Gemini). Verifique sua API KEY.");
-    }
+    msg.reply(response.output_text);
+
+  } catch (e) {
+    console.error(e);
+    msg.reply("Erro ao responder.");
+  }
 });
 
-client.login(process.env.DISCORD_TOKEN);
+bot.login(process.env.DISCORD_TOKEN);
